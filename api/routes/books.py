@@ -1,4 +1,4 @@
-from typing import OrderedDict
+from typing import OrderedDict, Any
 
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
@@ -55,6 +55,15 @@ async def update_book(book_id: int, book: Book) -> Book:
         content=db.update_book(book_id, book).model_dump(),
     )
 
+@router.get("/{book_id}", response_model=Book)
+async def get_book(book_id: int) -> Any:
+    books = db.get_books()
+    if book_id not in books:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"detail": "Book not found"}
+        )
+    return books[book_id]
 
 @router.delete("/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_book(book_id: int) -> None:
