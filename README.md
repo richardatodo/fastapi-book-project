@@ -119,6 +119,7 @@ Available genres:
 ```bash
 pytest
 ```
+echo "Testing CI pipeline" >> README.md
 
 ## Error Handling
 
