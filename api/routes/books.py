@@ -71,3 +71,4 @@ async def delete_book(book_id: int) -> None:
     return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content=None)
 
 # Adding a comment to test CI
+# Another test comment
