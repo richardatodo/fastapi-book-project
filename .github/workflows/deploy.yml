@@ -48,8 +48,37 @@ jobs:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
         run: |
           ssh -i ~/.ssh/deploy_key $SSH_USERNAME@$SSH_HOST << 'ENDSSH'
-            cd ~/fastapi-book-project
-            git pull origin main
-            docker-compose down
+            # Create project directory if it doesn't exist
+            mkdir -p ~/fastapi-book-project
+
+            # Navigate to project directory
+            cd ~/fastapi-book-project || exit 1
+
+            # Check if repository exists, if not clone it
+            if [ ! -d .git ]; then
+              git clone https://github.com/${{ github.repository }}.git .
+            fi
+
+            # Fetch and reset to main
+            git fetch --all
+            git reset --hard origin/main
+
+            # Check if docker-compose exists
+            if [ ! -f docker-compose.yml ]; then
+              echo "docker-compose.yml not found!"
+              exit 1
+            fi
+
+            # Stop running containers
+            docker-compose down || true
+
+            # Build and start containers
             docker-compose up -d --build
+
+            # Verify deployment
+            docker ps
+            
+            # Check if the application is responding
+            sleep 10
+            curl -f http://localhost:8000/api/v1/books || echo "Warning: Application not responding"
           ENDSSH
